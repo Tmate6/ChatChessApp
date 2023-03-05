@@ -5,8 +5,8 @@ A python app to play chess against ChatGPT
 
 ## How to use
 
-1. Paste API token as `openai.api_key`
-2. Make sure to use standard chess notation
+1. Save `config.yml.default` as `config.yml`
+2. Paste OpenAI API key as `API_key` into `config.yml`
 
 ## Working features
 
