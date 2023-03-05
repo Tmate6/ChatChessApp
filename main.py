@@ -1,3 +1,9 @@
+## Read Settings ##
+import yaml
+
+with open('config.yml', 'r') as file:
+    config_file = yaml.safe_load(file)
+
 ## Chess ##
 import chess
 
@@ -54,7 +60,7 @@ def printBoard():
 ## ChatGPT ###
 import openai
 
-openai.api_key = "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"
+openai.api_key = config_file["API_key"]
 
 def get_gpt_response():
     moves = ""
