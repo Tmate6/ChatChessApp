@@ -54,7 +54,7 @@ def printBoard():
 ## ChatGPT ###
 import openai
 
-openai.api_key = "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"
+openai.api_key = "" # Paste API key here
 
 def get_gpt_response():
     moves = ""
