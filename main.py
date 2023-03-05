@@ -4,16 +4,23 @@ import chess
 board = chess.Board()
 allMoves = []
 
-def handlePlayerInput(input):
+def handlePlayerInput(inputMove):
+    move = inputMove
+    if len(inputMove) > 2:
+        move = inputMove[0].capitalize() + inputMove[1:]
     try:
-        board.push_san(input)
-        allMoves.append(input)
+        board.push_san(move)
+        allMoves.append(move)
     except:
-        pass
+        print("\n", board, "\n")
+        print(board.legal_moves)
+        handlePlayerInput(input("Make a move: "))
 
 def handleChatInput(input):
     moves = input.split(" ")
     for move in moves:
+        if len(move) > 2:
+            move = move[0].capitalize() + move[1:]
         try:
             board.push_san(move)
             allMoves.append(move)
@@ -21,10 +28,33 @@ def handleChatInput(input):
         except:
             pass
 
+def printBoard():
+    chessBoard = str(board)
+
+    peices = "rnbkqpRNBKQP"
+    print("  ---------------------------------")
+    for no, i in enumerate(range(0,len(chessBoard),16)):
+        column = chessBoard[i:i+16]
+        print(8-no, "|", end="")
+
+        for field in column:
+            if field == " ":
+                pass
+            elif field == ".":
+                print(bcolors.OKBLUE, " ", bcolors.ENDC, end="|")
+            elif field in peices:
+                if field.capitalize() == field:
+                    print(bcolors.OKBLUE, field, bcolors.ENDC, end="|")
+                else:
+                    print(bcolors.OKCYAN, field, bcolors.ENDC , end="|")
+        print("")
+    print("  ---------------------------------")
+    print("    a   b   c   d   e   f   g   h")
+
 ## ChatGPT ###
 import openai
 
-openai.api_key = ""
+openai.api_key = "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"
 
 def get_gpt_response():
     moves = ""
@@ -66,7 +96,7 @@ class bcolors:
 if __name__ == "__main__":
     print(bcolors.OKBLUE, "ChatChess", bcolors.ENDC)
     while True:
-        print("\n", board, "\n")
+        printBoard()
         handlePlayerInput(input("Make a move: "))
-        print("\n", board, "\n")
+        printBoard()
         handleChatInput(get_gpt_response())
