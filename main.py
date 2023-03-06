@@ -10,6 +10,7 @@ import chess
 board = chess.Board()
 allMoves = []
 
+
 def handlePlayerInput(inputMove):
     move = inputMove
     if len(inputMove) > 2:
@@ -27,9 +28,10 @@ def handlePlayerInput(inputMove):
             except:
                 pass
 
-        print("\n", board, "\n")
+        printBoard()
         print(board.legal_moves)
         handlePlayerInput(input("Make a move: "))
+
 
 def handleChatInput(inputMove):
     print(board.legal_moves)
@@ -53,14 +55,15 @@ def handleChatInput(inputMove):
 
             pass
 
+
 def printBoard():
     chessBoard = str(board)
 
     peices = "rnbkqpRNBKQP"
     print("  ---------------------------------")
-    for no, i in enumerate(range(0,len(chessBoard),16)):
-        column = chessBoard[i:i+16]
-        print(8-no, "|", end="")
+    for no, i in enumerate(range(0, len(chessBoard), 16)):
+        column = chessBoard[i:i + 16]
+        print(8 - no, "|", end="")
 
         for field in column:
             if field == " ":
@@ -71,38 +74,48 @@ def printBoard():
                 if field.capitalize() == field:
                     print(bcolors.OKBLUE, field, bcolors.ENDC, end="|")
                 else:
-                    print(bcolors.OKCYAN, field, bcolors.ENDC , end="|")
+                    print(bcolors.OKCYAN, field, bcolors.ENDC, end="|")
         print("")
     print("  ---------------------------------")
     print("    a   b   c   d   e   f   g   h")
+
 
 ## ChatGPT ###
 import openai
 
 openai.api_key = config_file["API_key"]
 
+
 def get_gpt_response():
     moves = ""
     for i, move in enumerate(allMoves):
-        if i%2 == 0:
-            moves += str(int(i/2+1)) + ". " +  move + " "
+        if i % 2 == 0:
+            moves += str(int(i / 2 + 1)) + ". " + move + " "
         else:
             moves += move + " "
 
     print(moves)
 
     prompt = f"Continue chess. {moves}"
+    tokens = len(moves) + config_file["GPT_Settings"]["Tokens_added"]
+
+    if tokens > config_file["GPT_Settings"]["Max_tokens"] != 0:
+        tokens = config_file["GPT_Settings"]["Max_tokens"]
+
+    print(len(moves))
     response = openai.Completion.create(
         engine="davinci",
         prompt=prompt,
-        max_tokens=50,
+        max_tokens=tokens,
         n=1,
         stop=None,
         temperature=0.2,
     )
-    print(response.choices[0].text.strip())
+
     gpt_move = response.choices[0].text.strip()
+    print(gpt_move)
     return gpt_move
+
 
 ## Mainloop ##
 
@@ -116,6 +129,7 @@ class bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+
 
 if __name__ == "__main__":
     print(bcolors.OKBLUE, "ChatChess", bcolors.ENDC)

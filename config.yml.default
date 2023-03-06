@@ -1,1 +1,7 @@
-API_key: "" # Insert OpenAI api key here
+# ChatGPT Settings
+API_key: ""  # Insert OpenAI API key here
+
+GPT_Settings:
+  # Number of tokens allowed per ChatGPT query = length of sent moves + 'Tokens_added' (Capped at 'Max_tokens')
+  Tokens_added: 10  # Number of tokens to add (set to -1 for a fix amount defined in Max_tokens)
+  Max_tokens: 0  # Maximum amount of tokens to use per ChatGPT query (set to 0 for no limit)
