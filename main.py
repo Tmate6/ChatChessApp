@@ -71,9 +71,9 @@ def printBoard():
                 print(bcolors.OKBLUE, " ", bcolors.ENDC, end="|")
             elif field in peices:
                 if field.capitalize() == field:
-                    print(bcolors.OKBLUE, lettersToPeices[field], bcolors.ENDC, end="|")
-                else:
                     print(bcolors.OKCYAN, lettersToPeices[field], bcolors.ENDC, end="|")
+                elif field.lower() == field:
+                    print(bcolors.OKBLUE, lettersToPeices[field], bcolors.ENDC, end="|")
         print("")
     print("  ---------------------------------")
     print("    a   b   c   d   e   f   g   h")
@@ -108,7 +108,7 @@ def get_gpt_response():
         max_tokens=tokens,
         n=1,
         stop=None,
-        temperature=0.2,
+        temperature=config_file["GPT_Settings"]["Temperature"],
     )
 
     gpt_move = response.choices[0].text.strip()
