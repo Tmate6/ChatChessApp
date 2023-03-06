@@ -99,7 +99,7 @@ def get_gpt_response():
     prompt = f"Continue chess. {moves}"
     tokens = len(moves) + config_file["GPT_Settings"]["Tokens_added"]
 
-    if tokens > config_file["GPT_Settings"]["Max_tokens"] != 0:
+    if tokens > config_file["GPT_Settings"]["Max_tokens"] != 0 or config_file["GPT_Settings"]["Tokens_added"] == -1:
         tokens = config_file["GPT_Settings"]["Max_tokens"]
 
     print(len(moves))
