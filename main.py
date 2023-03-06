@@ -53,8 +53,7 @@ def handleChatInput(inputMove):
                 except:
                     pass
 
-            pass
-
+lettersToPeices = {"R": "♖", "N": "♘", "B": "♗", "Q": "♕", "K": "♔", "P": "♙", "r": "♜", "n": "♞", "b": "♝", "q": "♛", "k": "♚", "p": "♟︎"}
 
 def printBoard():
     chessBoard = str(board)
@@ -72,9 +71,9 @@ def printBoard():
                 print(bcolors.OKBLUE, " ", bcolors.ENDC, end="|")
             elif field in peices:
                 if field.capitalize() == field:
-                    print(bcolors.OKBLUE, field, bcolors.ENDC, end="|")
+                    print(bcolors.OKBLUE, lettersToPeices[field], bcolors.ENDC, end="|")
                 else:
-                    print(bcolors.OKCYAN, field, bcolors.ENDC, end="|")
+                    print(bcolors.OKCYAN, lettersToPeices[field], bcolors.ENDC, end="|")
         print("")
     print("  ---------------------------------")
     print("    a   b   c   d   e   f   g   h")
@@ -136,5 +135,14 @@ if __name__ == "__main__":
     while True:
         printBoard()
         handlePlayerInput(input("Make a move: "))
+
+        if board.is_checkmate():
+            print("CHECKMATE! Player wins.")
+            exit()
+
         printBoard()
         handleChatInput(get_gpt_response())
+
+        if board.is_checkmate():
+            print("CHECKMATE! ChatGPT wins.")
+            exit()
