@@ -16,22 +16,41 @@ def handlePlayerInput(inputMove):
         move = inputMove[0].capitalize() + inputMove[1:]
     try:
         board.push_san(move)
-        allMoves.append(move)
+        allMoves.append(str(move))
     except:
+        if "x" in move and len(move) > 3:
+            try:
+                move = inputMove[0].lower() + inputMove[1:]
+                board.push_san(move)
+                allMoves.append(str(move))
+                return
+            except:
+                pass
+
         print("\n", board, "\n")
         print(board.legal_moves)
         handlePlayerInput(input("Make a move: "))
 
-def handleChatInput(input):
-    moves = input.split(" ")
+def handleChatInput(inputMove):
+    print(board.legal_moves)
+    moves = inputMove.split(" ")
     for move in moves:
         if len(move) > 2:
             move = move[0].capitalize() + move[1:]
         try:
             board.push_san(move)
-            allMoves.append(move)
+            allMoves.append(str(move))
             break
         except:
+            if "x" in move and len(move) > 3:
+                try:
+                    ModMove = move[0].lower() + move[1:]
+                    board.push_san(ModMove)
+                    allMoves.append(str(ModMove))
+                    return
+                except:
+                    pass
+
             pass
 
 def printBoard():
@@ -69,11 +88,10 @@ def get_gpt_response():
             moves += str(int(i/2+1)) + ". " +  move + " "
         else:
             moves += move + " "
-        print(move)
 
     print(moves)
 
-    prompt = f"Respond chess. {moves}"
+    prompt = f"Continue chess. {moves}"
     response = openai.Completion.create(
         engine="davinci",
         prompt=prompt,
