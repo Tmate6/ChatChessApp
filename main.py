@@ -35,23 +35,21 @@ def handlePlayerInput(inputMove):
 
 def handleChatInput(inputMove):
     print(board.legal_moves)
-    moves = inputMove.split(" ")
-    for move in moves:
-        if len(move) > 2:
-            move = move[0].capitalize() + move[1:]
-        try:
-            board.push_san(move)
-            allMoves.append(str(move))
-            break
-        except:
-            if "x" in move and len(move) > 3:
-                try:
-                    ModMove = move[0].lower() + move[1:]
-                    board.push_san(ModMove)
-                    allMoves.append(str(ModMove))
-                    return
-                except:
-                    pass
+    move = inputMove
+    if len(move) > 2:
+        move = move[0].capitalize() + move[1:]
+    try:
+        board.push_san(move)
+        allMoves.append(str(move))
+    except:
+        if "x" in move and len(move) > 3:
+            try:
+                ModMove = move[0].lower() + move[1:]
+                board.push_san(ModMove)
+                allMoves.append(str(ModMove))
+                return
+            except:
+                pass
 
 lettersToPeices = {"R": "♖", "N": "♘", "B": "♗", "Q": "♕", "K": "♔", "P": "♙", "r": "♜", "n": "♞", "b": "♝", "q": "♛", "k": "♚", "p": "♟︎"}
 
@@ -95,25 +93,31 @@ def get_gpt_response():
 
     print(moves)
 
-    prompt = f"Continue chess. {moves}"
+    prompt = f"Reply the next chess move. Only the move. {moves}"
     tokens = len(moves) + config_file["GPT_Settings"]["Tokens_added"]
 
     if tokens > config_file["GPT_Settings"]["Max_tokens"] != 0 or config_file["GPT_Settings"]["Tokens_added"] == -1:
         tokens = config_file["GPT_Settings"]["Max_tokens"]
 
     print(len(moves))
-    response = openai.Completion.create(
-        engine="davinci",
-        prompt=prompt,
+
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
         max_tokens=tokens,
-        n=1,
-        stop=None,
-        temperature=config_file["GPT_Settings"]["Temperature"],
+        messages=[{"role": "system", "content": prompt}]
     )
 
-    gpt_move = response.choices[0].text.strip()
-    print(gpt_move)
-    return gpt_move
+    gptMove = response.choices[0]["message"]["content"].replace("\n", "").replace(".", "").replace(" ", "")
+
+    for i in range(len(gptMove)):
+        try:
+            placeholder = int(gptMove[i])
+        except:
+            gptMove = gptMove[i:]
+            break
+
+    print(gptMove)
+    return gptMove
 
 
 ## Mainloop ##
