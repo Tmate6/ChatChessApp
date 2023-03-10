@@ -184,5 +184,8 @@ fabric.properties
 # idea folder, uncomment if you don't need it
 .idea
 
-# yaml file
+# Yaml file
 config.yml
+
+# Mac
+.DS_Store
