@@ -1,5 +1,11 @@
 # ChatGPT Settings
-API_key: ""  # Insert OpenAI API key here
+API_key: "" # Insert OpenAI API key here
 
 GPT_Settings:
   Max_tokens: 10  # Maximum amount of tokens to use per ChatGPT query
+
+ChatGPT_ChatGPT:  # Options for chatGPT vs ChatGPT games
+  Output:
+    Print_debug: false  # True or False
+    Print_board: true  # True or False
+    Print_PGN: "true"  # Can be set to: true, end, false

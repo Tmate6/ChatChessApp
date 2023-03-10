@@ -9,29 +9,7 @@ import chess
 import chess.pgn
 
 board = chess.Board()
-allMoves = []
-
-
-def handlePlayerInput(inputMove):
-    move = inputMove
-    if len(inputMove) > 2:
-        move = inputMove[0].capitalize() + inputMove[1:]
-    try:
-        board.push_san(move)
-        allMoves.append(str(move))
-    except:
-        if "x" in move and len(move) > 3:
-            try:
-                move = inputMove[0].lower() + inputMove[1:]
-                board.push_san(move)
-                allMoves.append(str(move))
-                return
-            except:
-                pass
-
-        printBoard()
-        handlePlayerInput(input("Make a move: "))
-
+allMoves = ["e4", "e5"]
 
 def handleChatInput(inputMove):
     move = inputMove
@@ -40,12 +18,15 @@ def handleChatInput(inputMove):
     try:
         board.push_san(move)
         allMoves.append(str(move))
+        printDebug("moved_normal")
+        return
     except:
         if "x" in move and len(move) > 3:
             try:
                 ModMove = move[0].lower() + move[1:]
                 board.push_san(ModMove)
                 allMoves.append(str(ModMove))
+                printDebug("moved_lower")
                 return
             except:
                 pass
@@ -54,8 +35,16 @@ def handleChatInput(inputMove):
             for i in range(len(move)):
                 try:
                     board.push_san(move[i:i+chars])
+                    allMoves.append(str(move[i:i+chars]))
+                    printDebug("moved_scan: ", str(move[i:i+chars]))
+                    return
                 except:
                     pass
+
+    printDebug("failed_move")
+    if not board.is_checkmate():
+        handleChatInput(get_gpt_response(inputMove))
+
 
 lettersToPeices = {"R": "♖", "N": "♘", "B": "♗", "Q": "♕", "K": "♔", "P": "♙", "r": "♜", "n": "♞", "b": "♝", "q": "♛", "k": "♚", "p": "♟︎"}
 
@@ -88,12 +77,19 @@ import openai
 
 openai.api_key = config_file["API_key"]
 
-def get_gpt_response():
-    moves = ""
+def get_gpt_response(illegalMove):
 
-    prompt = f"Reply the next chess move. Only the move. {chess.pgn.Game.from_board(board)}"
-    print(len(moves))
+    if len(allMoves) % 2 == 0:
+        color = "white"
+    else:
+        color = "black"
 
+    if illegalMove:
+        prompt = f"Reply the next chess move. You are {color}. Do not say {illegalMove}. Only say the move. {str(chess.pgn.Game.from_board(board))[93:-2]}"
+    else:
+        prompt = f"Reply the next chess move as {color}. Only say the move. {str(chess.pgn.Game.from_board(board))[93:-2]}"
+
+    printDebug(str("\n" + prompt))
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         max_tokens=config_file["GPT_Settings"]["Max_tokens"],
@@ -109,11 +105,14 @@ def get_gpt_response():
             gptMove = gptMove[i:]
             break
 
-    print(gptMove)
+    printDebug(gptMove)
     return gptMove
 
 
 ## Mainloop ##
+from datetime import date
+
+today = date.today()
 
 class bcolors:
     HEADER = '\033[95m'
@@ -126,19 +125,38 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
+def printDebug(printInput):
+    if config_file["ChatGPT_ChatGPT"]["Output"]["Print_debug"]:
+        print(printInput)
 
 if __name__ == "__main__":
+    board.push_san("e4")
+    board.push_san("e5")
 
     print(bcolors.OKBLUE, "ChatChess", bcolors.ENDC)
-    handlePlayerInput("e4")
-    handlePlayerInput("e5")
-
     while True:
-        printBoard()
-        handleChatInput(get_gpt_response())
+        if config_file["ChatGPT_ChatGPT"]["Output"]["Print_board"]:
+            printBoard()
 
-        print(chess.pgn.Game.from_board(board))
+        handleChatInput(get_gpt_response(""))
+
+        if config_file["ChatGPT_ChatGPT"]["Output"]["Print_PGN"] == "true":
+            game = chess.pgn.Game.from_board(board)
+            game.headers["Event"] = "ChatChess test"
+            game.headers["Date"] = today.strftime("%d.%m.%Y")
+            game.headers["White"] = "ChatGPT"
+            game.headers["Black"] = "ChatGPT"
+            print("PGN:\n", game)
 
         if board.is_checkmate():
             print("CHECKMATE!")
+
+            if config_file["ChatGPT_ChatGPT"]["Output"]["Print_PGN"] == "end":
+                game = chess.pgn.Game.from_board(board)
+                game.headers["Event"] = "ChatChess test"
+                game.headers["Date"] = today.strftime("%d.%m.%Y")
+                game.headers["White"] = "ChatGPT"
+                game.headers["Black"] = "ChatGPT"
+                print(f"\nPGN:\n{game}")
+
             exit()
