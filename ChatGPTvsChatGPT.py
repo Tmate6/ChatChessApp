@@ -9,7 +9,6 @@ import chess
 import chess.pgn
 
 board = chess.Board()
-allMoves = ["e4", "e5"]
 
 def handleChatInput(inputMove):
     move = inputMove
@@ -17,16 +16,14 @@ def handleChatInput(inputMove):
         move = move[0].capitalize() + move[1:]
     try:
         board.push_san(move)
-        allMoves.append(str(move))
-        printDebug("moved_normal")
+        printDebug("move_normal")
         return
     except:
         if "x" in move and len(move) > 3:
             try:
                 ModMove = move[0].lower() + move[1:]
                 board.push_san(ModMove)
-                allMoves.append(str(ModMove))
-                printDebug("moved_lower")
+                printDebug("move_lower")
                 return
             except:
                 pass
@@ -35,13 +32,12 @@ def handleChatInput(inputMove):
             for i in range(len(move)):
                 try:
                     board.push_san(move[i:i+chars])
-                    allMoves.append(str(move[i:i+chars]))
-                    printDebug("moved_scan: ", str(move[i:i+chars]))
+                    printDebug(str("move_scan: " + str(move[i:i+chars])))
                     return
                 except:
                     pass
 
-    printDebug("failed_move")
+    printDebug("move_FAIL")
     if not board.is_checkmate():
         handleChatInput(get_gpt_response(inputMove))
 
@@ -79,7 +75,7 @@ openai.api_key = config_file["API_key"]
 
 def get_gpt_response(illegalMove):
 
-    if len(allMoves) % 2 == 0:
+    if board.turn == chess.WHITE:
         color = "white"
     else:
         color = "black"
