@@ -94,16 +94,12 @@ def get_gpt_response():
     print(moves)
 
     prompt = f"Reply the next chess move. Only the move. {moves}"
-    tokens = len(moves) + config_file["GPT_Settings"]["Tokens_added"]
-
-    if tokens > config_file["GPT_Settings"]["Max_tokens"] != 0 or config_file["GPT_Settings"]["Tokens_added"] == -1:
-        tokens = config_file["GPT_Settings"]["Max_tokens"]
 
     print(len(moves))
 
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
-        max_tokens=tokens,
+        max_tokens=config_file["GPT_Settings"]["Max_tokens"],
         messages=[{"role": "system", "content": prompt}]
     )
 
