@@ -10,39 +10,54 @@ import chess.pgn
 
 board = chess.Board()
 
+noOfFails = 0
+
 def handleChatInput(inputMove):
+    global noOfFails
     move = inputMove
     if len(move) > 2:
         move = move[0].capitalize() + move[1:]
+
     try:
         board.push_san(move)
         printDebug("move_normal")
+        noOfFails = 0
         return
     except:
-        if "x" in move and len(move) > 3:
+        pass
+
+    try:
+        ModMove = move[0].lower() + move[1:]
+        board.push_san(ModMove)
+        printDebug("move_lower")
+        noOfFails = 0
+        return
+    except:
+        pass
+
+    move = inputMove
+    for chars in range(len(move), 0, -1):
+        for i in range(len(move)):
             try:
-                ModMove = move[0].lower() + move[1:]
-                board.push_san(ModMove)
-                printDebug("move_lower")
+                board.push_san(move[i:i + chars])
+                printDebug(str("move_scan: " + str(move[i:i + chars])))
+                noOfFails = 0
                 return
             except:
                 pass
-        move = inputMove
-        for chars in range(len(move), 0, -1):
-            for i in range(len(move)):
-                try:
-                    board.push_san(move[i:i+chars])
-                    printDebug(str("move_scan: " + str(move[i:i+chars])))
-                    return
-                except:
-                    pass
 
     printDebug("move_FAIL")
-    if not board.is_checkmate():
+
+    if not board.is_checkmate() and noOfFails <= config_file["GPT_Settings"]["Max_fails"]:
+        noOfFails += 1
         handleChatInput(get_gpt_response(inputMove))
+    if noOfFails >= 5:
+        print(f'Max amount of failes reached ({config_file["GPT_Settings"]["Max_fails"]})')
+        exit()
 
 
 lettersToPeices = {"R": "♖", "N": "♘", "B": "♗", "Q": "♕", "K": "♔", "P": "♙", "r": "♜", "n": "♞", "b": "♝", "q": "♛", "k": "♚", "p": "♟︎"}
+
 
 def printBoard():
     chessBoard = str(board)
@@ -73,8 +88,8 @@ import openai
 
 openai.api_key = config_file["API_key"]
 
-def get_gpt_response(illegalMove):
 
+def get_gpt_response(illegalMove):
     if board.turn == chess.WHITE:
         color = "white"
     else:
@@ -110,6 +125,7 @@ from datetime import date
 
 today = date.today()
 
+
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -121,9 +137,21 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
+
 def printDebug(printInput):
     if config_file["ChatGPT_ChatGPT"]["Output"]["Print_debug"]:
         print(printInput)
+
+
+def printPGN(val):
+    if config_file["ChatGPT_Player"]["Output"]["Print_PGN"] == val:
+        game = chess.pgn.Game.from_board(board)
+        game.headers["Event"] = config_file["ChatGPT_ChatGPT"]["PGN"]["Event"]
+        game.headers["Date"] = today.strftime("%d.%m.%Y")
+        game.headers["White"] = "ChatGPT"
+        game.headers["Black"] = "ChatGPT"
+        print(f"\nPGN:\n{game}")
+
 
 if __name__ == "__main__":
     board.push_san("e4")
@@ -136,23 +164,11 @@ if __name__ == "__main__":
 
         handleChatInput(get_gpt_response(""))
 
-        if config_file["ChatGPT_ChatGPT"]["Output"]["Print_PGN"] == "true":
-            game = chess.pgn.Game.from_board(board)
-            game.headers["Event"] = "ChatChess test"
-            game.headers["Date"] = today.strftime("%d.%m.%Y")
-            game.headers["White"] = "ChatGPT"
-            game.headers["Black"] = "ChatGPT"
-            print("PGN:\n", game)
+        printPGN("true")
 
         if board.is_checkmate():
             print("CHECKMATE!")
 
-            if config_file["ChatGPT_ChatGPT"]["Output"]["Print_PGN"] == "end":
-                game = chess.pgn.Game.from_board(board)
-                game.headers["Event"] = "ChatChess test"
-                game.headers["Date"] = today.strftime("%d.%m.%Y")
-                game.headers["White"] = "ChatGPT"
-                game.headers["Black"] = "ChatGPT"
-                print(f"\nPGN:\n{game}")
+            printPGN("end")
 
             exit()

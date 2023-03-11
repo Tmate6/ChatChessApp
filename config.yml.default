@@ -3,9 +3,24 @@ API_key: "" # Insert OpenAI API key here
 
 GPT_Settings:
   Max_tokens: 10  # Maximum amount of tokens to use per ChatGPT query
+  Max_fails: 5  # Maximum amount of times to resend prompt to ChatGPT on failed move
 
-ChatGPT_ChatGPT:  # Options for chatGPT vs ChatGPT games
+ChatGPT_ChatGPT:  # Options for ChatGPT vs ChatGPT games
+  PGN:
+    Event: "?"  # Event name to use for PGN output
+
+  Output:
+    Print_debug: true  # True or False
+    Print_board: false  # True or False
+    Print_PGN: "end"  # Can be set to: true, end, false
+
+
+ChatGPT_Player:  # Options for ChatGPT vs Player games
+  PGN:
+    Player_name: "?"  # Player name to use for PNG output
+    Event: "?"  # Event name to use for PGN output
+
   Output:
     Print_debug: false  # True or False
     Print_board: true  # True or False
-    Print_PGN: "true"  # Can be set to: true, end, false
+    Print_PGN: "end"  # Can be set to: true, end, false
