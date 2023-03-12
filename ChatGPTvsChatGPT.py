@@ -52,7 +52,7 @@ def handleChatInput(inputMove):
     if not board.is_checkmate() and noOfFails <= config_file["GPT_Settings"]["Max_fails"]:
         noOfFails += 1
         handleChatInput(get_gpt_response(inputMove))
-    if noOfFails >= 5:
+    elif noOfFails >= config_file["GPT_Settings"]["Max_fails"]:
         print(f'Max amount of failes reached ({config_file["GPT_Settings"]["Max_fails"]})')
         exit()
 
