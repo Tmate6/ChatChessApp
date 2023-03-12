@@ -14,7 +14,6 @@ ChatGPT_ChatGPT:  # Options for ChatGPT vs ChatGPT games
     Print_board: false  # True or False
     Print_PGN: "end"  # Can be set to: true, end, false
 
-
 ChatGPT_Player:  # Options for ChatGPT vs Player games
   PGN:
     Player_name: "?"  # Player name to use for PNG output

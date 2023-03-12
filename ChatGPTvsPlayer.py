@@ -11,6 +11,7 @@ import chess.pgn
 board = chess.Board()
 allMoves = []
 
+noOfFails = 0
 
 def handlePlayerInput(inputMove):
     move = inputMove
@@ -72,8 +73,12 @@ def handleChatInput(inputMove):
 
     printDebug("move_FAIL")
 
-    if not board.is_checkmate():
+    if not board.is_checkmate() and noOfFails <= config_file["GPT_Settings"]["Max_fails"]:
+        noOfFails += 1
         handleChatInput(get_gpt_response(inputMove))
+    if noOfFails >= 5:
+        print(f'Max amount of failes reached ({config_file["GPT_Settings"]["Max_fails"]})')
+        exit()
 
 
 lettersToPeices = {"R": "♖", "N": "♘", "B": "♗", "Q": "♕", "K": "♔", "P": "♙", "r": "♜", "n": "♞", "b": "♝", "q": "♛", "k": "♚", "p": "♟︎"}
@@ -116,9 +121,13 @@ def get_gpt_response(illegalMove):
         color = "black"
 
     if illegalMove:
-        prompt = f"Reply the next chess move. You are {color}. Do not say {illegalMove}. Only say the move. {str(chess.pgn.Game.from_board(board))[93:-2]}"
+        if board.is_check():
+            prompt = f"Reply next chess move as {color}. You are in check. Play one of these: {str(board.legal_moves)[36:-2]}. Only say the move. {str(chess.pgn.Game.from_board(board))[93:-2]}"
+
+        else:
+            prompt = f"Reply next chess move as {color}. Play one of these: {str(board.legal_moves)[36:-1]}. Only say the move. {str(chess.pgn.Game.from_board(board))[93:-2]}"
     else:
-        prompt = f"Reply the next chess move as {color}. Only say the move. {str(chess.pgn.Game.from_board(board))[93:-2]}"
+        prompt = f"Reply next chess move as {color}. Only say the move. {str(chess.pgn.Game.from_board(board))[93:-2]}"
 
     printDebug(str("\n" + prompt))
 
@@ -143,6 +152,7 @@ def get_gpt_response(illegalMove):
 
 ## Mainloop ##
 from datetime import date
+
 today = date.today()
 
 
