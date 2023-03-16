@@ -1,6 +1,8 @@
 # ChatChess
 A python app to play chess with ChatGPT
 
+***A package for this will be published soon***
+
 **This is work in progress, so it has lots bugs/terrible code**
 
 ## How to use
