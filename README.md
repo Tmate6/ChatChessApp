@@ -1,6 +1,4 @@
-# ChatChess Examples
-A python app to play chess with ChatGPT
-# Will be made ChatChess example repo
+# First draft of ChatChess with very simple features
 
 ## How to use
 
